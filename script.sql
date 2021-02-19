@@ -91,3 +91,41 @@ update_at datetime
 );
 select * from assistance;
 go
+
+
+
+-- sp
+
+create procedure sp_registry_detail_insert(
+@id_registry int,
+@id_student int
+)
+as
+begin
+	insert into registry_detail(id_registry,id_student,create_at,update_at)
+	values(@id_registry,@id_student,getdate(),getdate());
+	-- @@identity captura el codigo generado en la anterior consulta (insert)
+	--
+	declare @id_registry_detail int =@@identity;
+		insert into qualification(id_registry_detail) values (@id_registry_detail);
+	-- 
+	declare @date datetime = getdate();
+	declare @date_end datetime = DATEADD(week,12,getdate());
+	while (@date < @date_end)
+	begin
+	INSERT INTO assistance(id_registry_detail,[date],update_at)
+	values (@id_registry_detail,@date,getdate());
+	set @date =DATEADD(week,1,@date)
+	end
+end
+
+execute sp_registry_detail_insert 1,1
+exec sp_registry_detail_insert 1,1
+select * from assistance
+
+declare @hoy datetime = getdate()
+declare @fecha_12 datetime = dateadd(week,1,getdate())
+
+select @fecha_12;
+
+select * from assistance
